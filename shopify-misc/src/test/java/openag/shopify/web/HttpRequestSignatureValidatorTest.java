@@ -5,6 +5,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
 
@@ -31,9 +32,10 @@ public class HttpRequestSignatureValidatorTest {
     request.addHeader("x-shopify-hmac-sha256", "5GHsO3ki8WYNFpeAIpwMX8P3CPyPagd1HFA5iLrGSXY=");
     request.setContent(StreamUtils.copyToByteArray(getClass().getResourceAsStream("sample_webhook_1.json")));
 
-    assertTrue(
-        HttpRequestSignatureValidator.validateBodySignature(request,
-            "6f93b5a75023fb4756c46c056399ba2028c640461cc57c3efcb06a31bcf8c5d4").isPresent());
+    final Optional<String> optional = HttpRequestSignatureValidator.validateBodySignature(request,
+        "6f93b5a75023fb4756c46c056399ba2028c640461cc57c3efcb06a31bcf8c5d4");
+
+    assertTrue(optional.isPresent());
   }
 
 }

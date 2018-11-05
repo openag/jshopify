@@ -12,17 +12,6 @@
   <artifactId>shopify-misc</artifactId>
   <description>Various Java stuff for Shopify</description>
 
-  <build>
-    <testResources>
-      <testResource>
-        <directory>${project.basedir}/src/test/resources</directory>
-        <includes>
-          <include>**/*.json</include>
-        </includes>
-      </testResource>
-    </testResources>
-  </build>
-
   <dependencies>
     <dependency>
       <groupId>com.google.code.gson</groupId>
