@@ -25,6 +25,7 @@
     <module>shopify-domain</module>
     <module>shopify-client</module>
     <module>shopify-misc</module>
+    <module>apps/shopify-change-listener-app</module>
   </modules>
 
   <build>
