@@ -1,21 +1,14 @@
 package openag.shopify.client;
 
-import openag.shopify.domain.Product;
-
-import java.util.Optional;
+import openag.shopify.client.product.ProductClient;
 
 /**
  * Shopify REST API Client
  */
-public interface ShopifyClient {
+public interface ShopifyClient extends ProductClient {
 
-//  /**
-//   * Returns all collects (collection-product mappings) for the provided collection
-//   *
-//   * @param id collection ID
-//   */
-//  List<Collect> findCollectsForCollection(long id);
-
-  Optional<Product> getProduct(long id);
-
+  /**
+   * Attempts to fetch the provided file throwing exception if http error code returned
+   */
+  FileRef downloadFile(String url);
 }
