@@ -7,8 +7,6 @@ import openag.shopify.domain.Product;
 import java.util.List;
 import java.util.Optional;
 
-import static openag.shopify.client.Exchange.path;
-
 public class ProductClientImpl implements ProductClient {
 
   private final Http http;
@@ -19,20 +17,16 @@ public class ProductClientImpl implements ProductClient {
 
   @Override
   public List<Product> findProducts(ProductListRequest request) {
-//    return http.getList(
-//        path("/admin/products.json")
-//            .params(request.params())
-//            .response(
-//                (gson, json) -> gson.fromJson(json.getAsJsonArray("products"),
-//                    new TypeToken<List<Product>>() {
-//                    }.getType())));
-    return null;
+    return http.get("/admin/products.json")
+        .params(request.params())
+        .list((gson, json) -> gson.fromJson(json.getAsJsonArray("products"),
+            new TypeToken<List<Product>>() {
+            }.getType()));
   }
 
   @Override
   public Optional<Product> getProduct(long id) {
-//    return http.getOne("/admin/products/" + id + ".json",
-//        (gson, jsonObject) -> gson.fromJson(jsonObject.get("product").getAsJsonObject(), Product.class));
-    return null;
+    return http.get("/admin/products/" + id + ".json")
+        .getOne((gson, jsonObject) -> gson.fromJson(jsonObject.get("product").getAsJsonObject(), Product.class));
   }
 }

@@ -12,9 +12,13 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 public class Http {
   private final HttpClient http;
@@ -45,32 +49,12 @@ public class Http {
   }
 
   /**
-   * todo:
+   * Initiates HTTP GET exchange on the specified path
    */
-  public <T> Optional<T> getOne(Exchange<T> exchange) {
-    final URI uri = exchange.absoluteUrl(this.baseUrl);
-    final HttpRequest httpRequest = HttpRequest.newBuilder().uri(uri).GET().build();
-    final HttpResponse<String> response = execute(httpRequest);
-    if (response.statusCode() == 404) {
-      return Optional.empty();
-    }
-    //todo check other response codes
-    return Optional.of(exchange.getExtractor().apply(gson, gson.fromJson(response.body(), JsonObject.class)));
+  public Exchange get(String path) {
+    return new Exchange(path, Method.GET);
   }
 
-
-  public <T> List<T> getList(Exchange<List<T>> exchange) {
-//    final HttpRequest httpRequest = HttpRequest.newBuilder().uri(absolute(path)).GET().build();
-//    final HttpResponse<String> response = execute(httpRequest);
-//    todo: check response codes
-//    return exchange.getExtractor().apply(gson, gson.fromJson(response.body(), JsonObject.class));
-    return null;
-  }
-
-
-  /**
-   * todo:
-   */
   private HttpResponse<String> execute(HttpRequest request) {
     try {
       acquireSlot();
@@ -104,5 +88,82 @@ public class Http {
     } catch (URISyntaxException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  /**
+   * Encapsulation of request-response operation pair
+   */
+  public class Exchange {
+
+    private final String path;
+    private final Method method;
+
+    private Map<String, String> params;
+
+    private Exchange(String path, Method method) {
+      this.path = path;
+      this.method = method;
+    }
+
+    public Exchange params(Map<String, String> params) {
+      ensureParams();
+      this.params.putAll(params);
+      return this;
+    }
+
+    public Exchange param(String name, String value) {
+      ensureParams();
+      this.params.put(name, value);
+      return this;
+    }
+
+    /**
+     * todo:
+     */
+    public <T> List<T> list(BiFunction<Gson, JsonObject, List<T>> extractor) {
+      final HttpRequest httpRequest = request();
+      final HttpResponse<String> response = execute(httpRequest);
+//    todo: check response codes
+      return extractor.apply(gson, gson.fromJson(response.body(), JsonObject.class));
+    }
+
+
+    public <T> Optional<T> getOne(BiFunction<Gson, JsonObject, T> extractor) {
+      final HttpRequest httpRequest = request();
+      final HttpResponse<String> response = execute(httpRequest);
+      if (response.statusCode() == 404) {
+        return Optional.empty();
+      }
+      //todo check other response codes
+      return Optional.of(extractor.apply(gson, gson.fromJson(response.body(), JsonObject.class)));
+    }
+
+
+    private HttpRequest request() {
+      final StringBuilder sb = new StringBuilder(path);
+
+      if (method == Method.GET) {
+        if (params != null) {
+          sb.append("?").append(
+              params.entrySet().stream()
+                  .map(entry -> entry.getKey() + "=" + entry.getValue())
+                  .collect(Collectors.joining("&")));
+        }
+      }
+      return HttpRequest.newBuilder()
+          .uri(absolute(sb.toString()))
+          .method(this.method.name(), HttpRequest.BodyPublishers.noBody())
+          .build();
+    }
+
+    private void ensureParams() {
+      if (this.params == null) {
+        this.params = new HashMap<>();
+      }
+    }
+  }
+
+  public enum Method {
+    GET
   }
 }
