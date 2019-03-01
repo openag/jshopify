@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 //todo: implement Step 5: Request new access tokens https://help.shopify.com/en/api/getting-started/authentication/oauth/api-credential-rotation
 
@@ -40,6 +41,20 @@ public class ShopifyApplicationAuthorizationController {
 
   private final String scopes;
   private final String callbackBaseUrl;
+
+  /**
+   * The called when permanent token is obtained
+   */
+  private TokenCallback tokenCallback;
+
+  /**
+   * The nonce generator for the OAuth redirect url
+   */
+  private Supplier<String> nonceGenerator = () -> {
+    final byte[] bytes = new byte[8];
+    random.nextBytes(bytes);
+    return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes) + System.currentTimeMillis();
+  };
 
   /**
    * Creates new instance of the controller. All parameters are mandatory
@@ -81,7 +96,7 @@ public class ShopifyApplicationAuthorizationController {
       return;
     }
 
-    final String state = nonce();
+    final String state = nonceGenerator.get();
     final String redirectUri = callbackBaseUrl + "/shopify/callback";
     final String installUrl = "https://" + shop +
         "/admin/oauth/authorize?client_id=" + apiKey +
@@ -94,14 +109,8 @@ public class ShopifyApplicationAuthorizationController {
   }
 
   /**
-   * todo:
-   *
-   * @param shop
-   * @param hmac
-   * @param code
-   * @param state
-   * @param request
-   * @param response
+   * The OAuth authorization code callback. The eventual result is permanent access token that will be published via
+   * provided {@link TokenCallback} instance. The token can be used then to access shop data within the provided scopes
    */
   @GetMapping("/shopify/callback")
   public void authorizationCallback(
@@ -132,9 +141,10 @@ public class ShopifyApplicationAuthorizationController {
       return;
     }
 
-
-    final Optional<String> token = fetchAccessToken(shop, code);
-    System.out.println();
+    final String token = fetchAccessToken(shop, code).orElseThrow(() -> new IOException("Failed to obtain token"));
+    if (tokenCallback != null) {
+      tokenCallback.tokenObtained(shop, token);
+    }
   }
 
   private Optional<Cookie> findStateCookie(HttpServletRequest request) {
@@ -152,9 +162,24 @@ public class ShopifyApplicationAuthorizationController {
     return Optional.empty();
   }
 
-  static String nonce() {
-    final byte[] bytes = new byte[8];
-    random.nextBytes(bytes);
-    return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes) + System.currentTimeMillis();
+  public void setTokenCallback(TokenCallback tokenCallback) {
+    this.tokenCallback = tokenCallback;
+  }
+
+  public void setNonceGenerator(Supplier<String> nonceGenerator) {
+    if (nonceGenerator != null) {
+      this.nonceGenerator = nonceGenerator;
+    }
+  }
+
+  Supplier<String> getNonceGenerator() {
+    return nonceGenerator;
+  }
+
+  /**
+   * Called when permanent token is obtained, which is the very last step of authentication process
+   */
+  public interface TokenCallback {
+    void tokenObtained(String shop, String token);
   }
 }

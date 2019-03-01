@@ -6,6 +6,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.io.IOException;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ShopifyApplicationAuthorizationControllerTest {
@@ -19,20 +20,21 @@ public class ShopifyApplicationAuthorizationControllerTest {
   }
 
   @Test
-  public void test_nonce() {
-    final String nonce = ShopifyApplicationAuthorizationController.nonce();
+  public void test_default_nonce() {
+    final String nonce = controller.getNonceGenerator().get();
     assertTrue(nonce.length() >= 24);
   }
 
   @Test
   public void test_initiateAuthorizationFlow_happyPath() throws IOException {
     final MockHttpServletResponse response = new MockHttpServletResponse();
+
+    controller.setNonceGenerator(() -> "NONCE");
     controller.initiateAuthorizationFlow("myshop.myshopify.com", response);
 
-    final String expected = "https://myshop.myshopify.com//admin/oauth/authorize?" +
+    final String expected = "https://myshop.myshopify.com/admin/oauth/authorize?" +
         "client_id=key1&scope=read_products&state=NONCE&redirect_uri=https://example.com/shopify/callback";
 
-    //todo: fix nonce generator!
-//    assertEquals(expected, response.getRedirectedUrl());
+    assertEquals(expected, response.getRedirectedUrl());
   }
 }
