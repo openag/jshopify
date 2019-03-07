@@ -61,6 +61,16 @@ class ShopifyClientImpl implements ShopifyClient {
   }
 
   @Override
+  public Webhook createWebhook(Webhook webhook) {
+    return webhookClient.createWebhook(webhook);
+  }
+
+  @Override
+  public void deleteWebhook(long id) {
+    webhookClient.deleteWebhook(id);
+  }
+
+  @Override
   public FileRef downloadFile(String url) {
     return downloadUtils.download(url);
   }

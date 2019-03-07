@@ -1,6 +1,5 @@
 package openag.shopify.client.webhook;
 
-import com.google.gson.reflect.TypeToken;
 import openag.shopify.client.Http;
 import openag.shopify.domain.Webhook;
 
@@ -18,14 +17,18 @@ public class WebhookClientImpl implements WebhookClient {
   public List<Webhook> getWebhooks(WebhookListRequest request) {
     return http.get("/admin/webhooks.json")
         .params(request.params())
-        .list((gson, json) -> gson.fromJson(json.getAsJsonArray("webhooks"),
-            new TypeToken<List<Webhook>>() {
-            }.getType()));
+        .list("webhooks", Webhook.class);
   }
 
   @Override
   public Webhook createWebhook(Webhook webhook) {
-    //todo: implement POST
-    return null;
+    return http.post("/admin/webhooks.json")
+        .body("webhook", webhook)
+        .getOne("webhook", Webhook.class);
+  }
+
+  @Override
+  public void deleteWebhook(long id) {
+    http.delete("/admin/webhooks/" + id + ".json").execute();
   }
 }

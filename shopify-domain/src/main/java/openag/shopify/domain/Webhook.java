@@ -23,7 +23,7 @@ public class Webhook {
   /**
    * Format in which the webhook subscription should send the data. Valid values are "json" and "xml".
    */
-  private String format;
+  private String format = "json";
 
   /**
    * Unique numeric identifier for the webhook subscription.
@@ -44,6 +44,70 @@ public class Webhook {
    * Date and time when the webhook subscription was updated.
    */
   private Date updatedAt;
+
+  public String getAddress() {
+    return address;
+  }
+
+  public void setAddress(String address) {
+    this.address = address;
+  }
+
+  public Date getCreatedAt() {
+    return createdAt;
+  }
+
+  public void setCreatedAt(Date createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  public String[] getFields() {
+    return fields;
+  }
+
+  public void setFields(String[] fields) {
+    this.fields = fields;
+  }
+
+  public String getFormat() {
+    return format;
+  }
+
+  public void setFormat(String format) {
+    this.format = format;
+  }
+
+  public long getId() {
+    return id;
+  }
+
+  public void setId(long id) {
+    this.id = id;
+  }
+
+  public String[] getMetafieldNamespaces() {
+    return metafieldNamespaces;
+  }
+
+  public void setMetafieldNamespaces(String[] metafieldNamespaces) {
+    this.metafieldNamespaces = metafieldNamespaces;
+  }
+
+  public String getTopic() {
+    return topic;
+  }
+
+  public void setTopic(String topic) {
+    this.topic = topic;
+  }
+
+  public Date getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public void setUpdatedAt(Date updatedAt) {
+    this.updatedAt = updatedAt;
+  }
 
   @Override
   public String toString() {

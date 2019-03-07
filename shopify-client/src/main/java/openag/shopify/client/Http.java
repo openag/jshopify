@@ -1,6 +1,7 @@
 package openag.shopify.client;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import openag.shopify.ShopifyUtils;
 
@@ -12,12 +13,8 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 public class Http {
@@ -55,31 +52,12 @@ public class Http {
     return new Exchange(path, Method.GET);
   }
 
-  private HttpResponse<String> execute(HttpRequest request) {
-    try {
-      acquireSlot();
-      final HttpResponse<String> response = http.send(request, HttpResponse.BodyHandlers.ofString());
-      response.headers().firstValue("x-shopify-shop-api-call-limit").ifPresent(this::updateSlot);
-      return response;
-    } catch (InterruptedException | IOException e) {
-      throw new ShopifyClientException(e);
-    }
+  public Exchange post(String path) {
+    return new Exchange(path, Method.POST);
   }
 
-  //todo: not safe implementation for now, improve!
-  private synchronized void acquireSlot() throws InterruptedException {
-    if (availableSlots.get() <= 0) {
-      Thread.sleep(1_000); //expect that at least one slot will become available during this second
-    } else {
-      if (availableSlots.get() > 0) {
-        availableSlots.decrementAndGet();
-      }
-    }
-  }
-
-  private void updateSlot(String s) {
-    final String[] split = s.split("/");  // 1/40
-    this.availableSlots.set(Integer.parseInt(split[1]) - Integer.parseInt(split[0]));
+  public Exchange delete(String path) {
+    return new Exchange(path, Method.DELETE);
   }
 
   private URI absolute(String path) {
@@ -99,6 +77,7 @@ public class Http {
     private final Method method;
 
     private Map<String, String> params;
+    private JsonObject body;
 
     private Exchange(String path, Method method) {
       this.path = path;
@@ -117,28 +96,76 @@ public class Http {
       return this;
     }
 
+    public Exchange body(String wrapperElementName, Object body) {
+      final JsonObject root = new JsonObject();
+      root.add(wrapperElementName, gson.toJsonTree(body));
+      this.body = root;
+      return this;
+    }
+
     /**
      * todo:
      */
-    public <T> List<T> list(BiFunction<Gson, JsonObject, List<T>> extractor) {
-      final HttpRequest httpRequest = request();
-      final HttpResponse<String> response = execute(httpRequest);
-//    todo: check response codes
-      return extractor.apply(gson, gson.fromJson(response.body(), JsonObject.class));
+    public void execute() {
+      executeRequest();
     }
 
+    /**
+     * todo:
+     *
+     * @param wrapperElementName
+     * @param elementType
+     * @param <T>
+     * @return
+     */
+    public <T> T getOne(String wrapperElementName, Class<T> elementType) {
+      final HttpResponse<String> response = executeRequest();
+      if (response.statusCode() == 404) {
+        return null; //todo: should throw instead
+      }
+      return unwrapSingle(response.body(), wrapperElementName, elementType);
+    }
 
-    public <T> Optional<T> getOne(BiFunction<Gson, JsonObject, T> extractor) {
-      final HttpRequest httpRequest = request();
-      final HttpResponse<String> response = execute(httpRequest);
+    /**
+     * todo:
+     */
+    public <T> Optional<T> getOptional(String wrapperElementName, Class<T> elementType) {
+      final HttpResponse<String> response = executeRequest();
       if (response.statusCode() == 404) {
         return Optional.empty();
       }
-      //todo check other response codes
-      return Optional.of(extractor.apply(gson, gson.fromJson(response.body(), JsonObject.class)));
+      return Optional.ofNullable(unwrapSingle(response.body(), wrapperElementName, elementType));
     }
 
+    private <T> T unwrapSingle(String body, String wrapperElementName, Class<T> elementType) {
+      final JsonObject root = gson.fromJson(body, JsonObject.class);
+      final JsonObject jsonObject = root.getAsJsonObject(wrapperElementName);
+      return gson.fromJson(jsonObject, elementType);
+    }
 
+    /**
+     * todo:
+     *
+     * @param wrapperElementName
+     * @param elementType
+     * @param <T>
+     * @return
+     */
+    public <T> List<T> list(String wrapperElementName, Class<T> elementType) {
+      final HttpResponse<String> response = executeRequest();
+//    todo: check response codes
+
+      final JsonObject body = gson.fromJson(response.body(), JsonObject.class);
+      final JsonArray jsonArray = body.getAsJsonArray(wrapperElementName);
+
+      final List<T> result = new ArrayList<>(jsonArray.size());
+      jsonArray.forEach(jsonElement -> result.add(gson.fromJson(jsonElement, elementType)));
+      return result;
+    }
+
+    /**
+     * todo:
+     */
     private HttpRequest request() {
       final StringBuilder sb = new StringBuilder(path);
 
@@ -150,11 +177,54 @@ public class Http {
                   .collect(Collectors.joining("&")));
         }
       }
-      return HttpRequest.newBuilder()
+
+      HttpRequest.BodyPublisher bodyPublisher = HttpRequest.BodyPublishers.noBody();
+      if (method == Method.POST) {
+        bodyPublisher = HttpRequest.BodyPublishers.ofString(gson.toJson(body));
+      }
+
+      final HttpRequest.Builder builder = HttpRequest.newBuilder()
           .uri(absolute(sb.toString()))
-          .method(this.method.name(), HttpRequest.BodyPublishers.noBody())
-          .build();
+          .method(this.method.name(), bodyPublisher);
+      if (method == Method.POST) {
+        builder.header("Content-Type", "application/json");
+      }
+      return builder.build();
     }
+
+    /**
+     * todo:
+     */
+    private HttpResponse<String> executeRequest() {
+      final HttpRequest request = request();
+
+      try {
+        acquireSlot();
+        final HttpResponse<String> response = http.send(request, HttpResponse.BodyHandlers.ofString());
+        response.headers().firstValue("x-shopify-shop-api-call-limit").ifPresent(this::updateSlot);
+        //    todo: check response codes
+        return response;
+      } catch (InterruptedException | IOException e) {
+        throw new ShopifyClientException(e);
+      }
+    }
+
+    //todo: not safe implementation for now, improve!
+    private synchronized void acquireSlot() throws InterruptedException {
+      if (availableSlots.get() <= 0) {
+        Thread.sleep(1_000); //expect that at least one slot will become available during this second
+      } else {
+        if (availableSlots.get() > 0) {
+          availableSlots.decrementAndGet();
+        }
+      }
+    }
+
+    private void updateSlot(String s) {
+      final String[] split = s.split("/");  // 1/40
+      availableSlots.set(Integer.parseInt(split[1]) - Integer.parseInt(split[0]));
+    }
+
 
     private void ensureParams() {
       if (this.params == null) {
@@ -164,6 +234,6 @@ public class Http {
   }
 
   public enum Method {
-    GET
+    GET, POST, DELETE
   }
 }

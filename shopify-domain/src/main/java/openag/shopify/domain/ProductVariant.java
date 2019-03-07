@@ -206,4 +206,32 @@ public class ProductVariant {
   public void setWeightUnit(String weightUnit) {
     this.weightUnit = weightUnit;
   }
+
+  @Override
+  public String toString() {
+    return "ProductVariant{" +
+        "barcode='" + barcode + '\'' +
+        ", compareAtPrice=" + compareAtPrice +
+        ", createdAt=" + createdAt +
+        ", fulfillmentService='" + fulfillmentService + '\'' +
+        ", grams=" + grams +
+        ", id=" + id +
+        ", imageId=" + imageId +
+        ", inventoryItemId=" + inventoryItemId +
+        ", inventoryManagement='" + inventoryManagement + '\'' +
+        ", option1='" + option1 + '\'' +
+        ", option2='" + option2 + '\'' +
+        ", option3='" + option3 + '\'' +
+        ", position=" + position +
+        ", price=" + price +
+        ", productId=" + productId +
+        ", requiresShipping=" + requiresShipping +
+        ", sku='" + sku + '\'' +
+        ", taxable=" + taxable +
+        ", title='" + title + '\'' +
+        ", updatedAt=" + updatedAt +
+        ", weight=" + weight +
+        ", weightUnit='" + weightUnit + '\'' +
+        '}';
+  }
 }

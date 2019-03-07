@@ -1,6 +1,5 @@
 package openag.shopify.client.inventory;
 
-import com.google.gson.reflect.TypeToken;
 import openag.shopify.client.Http;
 import openag.shopify.domain.InventoryLevel;
 import openag.shopify.domain.Location;
@@ -19,23 +18,19 @@ public class InventoryClientImpl implements InventoryClient {
   @Override
   public List<Location> getLocations() {
     return http.get("/admin/locations.json")
-        .list((gson, json) -> gson.fromJson(json.getAsJsonArray("locations"),
-            new TypeToken<List<Location>>() {
-            }.getType()));
+        .list("locations", Location.class);
   }
 
   @Override
   public Optional<Location> getLocation(long id) {
     return http.get("/admin/locations/" + id + ".json")
-        .getOne((gson, json) -> gson.fromJson(json.getAsJsonObject("location"), Location.class));
+        .getOptional("location", Location.class);
   }
 
   @Override
   public List<InventoryLevel> getInventoryLevels(InventoryLevelsRequest request) {
     return http.get("/admin/inventory_levels.json")
         .params(request.params())
-        .list((gson, json) -> gson.fromJson(json.getAsJsonArray("inventory_levels"),
-            new TypeToken<List<InventoryLevel>>() {
-            }.getType()));
+        .list("inventory_levels", InventoryLevel.class);
   }
 }

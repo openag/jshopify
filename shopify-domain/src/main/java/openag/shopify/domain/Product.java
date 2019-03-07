@@ -1,5 +1,6 @@
 package openag.shopify.domain;
 
+import java.util.Arrays;
 import java.util.Date;
 
 public class Product {
@@ -108,5 +109,23 @@ public class Product {
 
   public void setVendor(String vendor) {
     this.vendor = vendor;
+  }
+
+  @Override
+  public String toString() {
+    return "Product{" +
+        "bodyHtml='" + bodyHtml + '\'' +
+        ", createdAt=" + createdAt +
+        ", handle='" + handle + '\'' +
+        ", id=" + id +
+        ", images=" + Arrays.toString(images) +
+        ", productType='" + productType + '\'' +
+        ", publishedAt=" + publishedAt +
+        ", tags='" + tags + '\'' +
+        ", title='" + title + '\'' +
+        ", updatedAt=" + updatedAt +
+        ", variants=" + Arrays.toString(variants) +
+        ", vendor='" + vendor + '\'' +
+        '}';
   }
 }

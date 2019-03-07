@@ -16,4 +16,10 @@ public interface WebhookClient {
    */
   Webhook createWebhook(Webhook webhook);
 
+  /**
+   * Delete an existing webhook from a shop
+   *
+   * @param id webhook unique ID
+   */
+  void deleteWebhook(long id);
 }
