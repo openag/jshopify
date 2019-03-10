@@ -18,10 +18,6 @@
       <artifactId>shopify-domain</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>openag.shopify</groupId>
-      <artifactId>shopify-misc</artifactId>
-    </dependency>
 
 
     <dependency>

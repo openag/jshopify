@@ -1,9 +1,6 @@
 package openag.shopify.client;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import openag.shopify.ShopifyUtils;
+import com.google.gson.*;
 
 import java.io.IOException;
 import java.net.Authenticator;
@@ -21,12 +18,20 @@ public class Http {
   private final HttpClient http;
   private final String baseUrl;
 
-  private final Gson gson = ShopifyUtils.gson;
+  private static final Gson gson = new GsonBuilder()
+      .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+      .setDateFormat("yyyy-MM-dd'T'HH:mm:ssX")
+      .create();
 
   private final AtomicInteger availableSlots = new AtomicInteger(40);
   private volatile long slotLastUpdateTimestamp;
 
+  private String accessToken;
+
   /**
+   * Creates new {@link Http} instance with application key/secret authentication scheme (suitable for private
+   * applications for example)
+   *
    * @param domain   Shopify shop full domain (xxxx.myshopify.com)
    * @param apiKey   shop private app API key
    * @param password shop private app password
@@ -41,7 +46,18 @@ public class Http {
               }
             })
             .build();
+    this.baseUrl = "https://" + domain;
+  }
 
+  /**
+   * todo:
+   *
+   * @param domain
+   * @param accessToken
+   */
+  Http(String domain, String accessToken) {
+    this.http = HttpClient.newBuilder().build();
+    this.accessToken = accessToken;
     this.baseUrl = "https://" + domain;
   }
 
@@ -186,9 +202,15 @@ public class Http {
       final HttpRequest.Builder builder = HttpRequest.newBuilder()
           .uri(absolute(sb.toString()))
           .method(this.method.name(), bodyPublisher);
+
       if (method == Method.POST) {
         builder.header("Content-Type", "application/json");
       }
+
+      if (accessToken != null) {
+        builder.header("X-Shopify-Access-Token", accessToken);
+      }
+
       return builder.build();
     }
 

@@ -17,7 +17,12 @@
       <groupId>openag.shopify</groupId>
       <artifactId>shopify-domain</artifactId>
     </dependency>
-    
+    <dependency>
+      <groupId>openag.shopify</groupId>
+      <artifactId>shopify-client</artifactId>
+    </dependency>
+
+
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>

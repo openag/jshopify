@@ -189,6 +189,9 @@ public class Webhook {
     Topic(String topic) {
       this.topic = topic;
     }
-  }
+
+    public String getTopic() {
+      return topic;
+    }}
 
 }

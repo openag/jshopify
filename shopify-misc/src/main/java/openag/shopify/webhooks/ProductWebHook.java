@@ -1,6 +1,6 @@
 package openag.shopify.webhooks;
 
-import openag.shopify.Signed;
+import openag.shopify.spring.ShopifyPayload;
 import openag.shopify.domain.Product;
 import openag.shopify.events.ProductEvent;
 import org.springframework.context.ApplicationEventPublisher;
@@ -22,17 +22,17 @@ public class ProductWebHook {
   }
 
   @PostMapping("/create")
-  public void productCreated(@Signed Product product) {
+  public void productCreated(@ShopifyPayload Product product) {
     applicationEventPublisher.publishEvent(new ProductEvent.Created(product));
   }
 
   @PostMapping("/update")
-  public void productUpdated(@Signed Product product) {
+  public void productUpdated(@ShopifyPayload Product product) {
     applicationEventPublisher.publishEvent(new ProductEvent.Updated(product));
   }
 
   @PostMapping("/delete")
-  public void productDeleted(@Signed Product product) {
+  public void productDeleted(@ShopifyPayload Product product) {
     applicationEventPublisher.publishEvent(new ProductEvent.Deleted(product));
   }
 }
