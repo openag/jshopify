@@ -7,21 +7,46 @@ import java.util.Date;
  */
 public class Collect {
 
-  private long id;
+  /**
+   * The ID of the custom collection containing the product.
+   */
   private long collectionId;
-  private long productId;
+
+  /**
+   * The date and time when the collect was created.
+   */
   private Date createdAt;
-  private Date updatedAt;
+
+  /**
+   * Whether the collect is featured.
+   */
+  private boolean featured;
+
+  /**
+   * A unique numeric identifier for the collect.
+   */
+  private long id;
+
+  /**
+   * The position of this product in a manually sorted custom collection. The first position is 1. This value is applied
+   * only when the custom collection is sorted manually.
+   */
   private int position;
+
+  /**
+   * The unique numeric identifier for the product in the custom collection.
+   */
+  private long productId;
+
+  /**
+   * This is the same value as position but padded with leading zeroes to make it alphanumeric-sortable.
+   */
   private String sortValue;
 
-  public long getId() {
-    return id;
-  }
-
-  public void setId(long id) {
-    this.id = id;
-  }
+  /**
+   * The date and time when the collect was last updated.
+   */
+  private Date updatedAt;
 
   public long getCollectionId() {
     return collectionId;
@@ -29,14 +54,6 @@ public class Collect {
 
   public void setCollectionId(long collectionId) {
     this.collectionId = collectionId;
-  }
-
-  public long getProductId() {
-    return productId;
-  }
-
-  public void setProductId(long productId) {
-    this.productId = productId;
   }
 
   public Date getCreatedAt() {
@@ -47,12 +64,20 @@ public class Collect {
     this.createdAt = createdAt;
   }
 
-  public Date getUpdatedAt() {
-    return updatedAt;
+  public boolean isFeatured() {
+    return featured;
   }
 
-  public void setUpdatedAt(Date updatedAt) {
-    this.updatedAt = updatedAt;
+  public void setFeatured(boolean featured) {
+    this.featured = featured;
+  }
+
+  public long getId() {
+    return id;
+  }
+
+  public void setId(long id) {
+    this.id = id;
   }
 
   public int getPosition() {
@@ -63,11 +88,41 @@ public class Collect {
     this.position = position;
   }
 
+  public long getProductId() {
+    return productId;
+  }
+
+  public void setProductId(long productId) {
+    this.productId = productId;
+  }
+
   public String getSortValue() {
     return sortValue;
   }
 
   public void setSortValue(String sortValue) {
     this.sortValue = sortValue;
+  }
+
+  public Date getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public void setUpdatedAt(Date updatedAt) {
+    this.updatedAt = updatedAt;
+  }
+
+  @Override
+  public String toString() {
+    return "Collect{" +
+        "collectionId=" + collectionId +
+        ", createdAt=" + createdAt +
+        ", featured=" + featured +
+        ", id=" + id +
+        ", position=" + position +
+        ", productId=" + productId +
+        ", sortValue='" + sortValue + '\'' +
+        ", updatedAt=" + updatedAt +
+        '}';
   }
 }

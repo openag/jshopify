@@ -2,6 +2,7 @@ package openag.shopify.client;
 
 import openag.shopify.client.inventory.InventoryClient;
 import openag.shopify.client.inventory.InventoryLevelsRequest;
+import openag.shopify.client.product.CollectListRequest;
 import openag.shopify.client.product.ProductClient;
 import openag.shopify.client.product.ProductListRequest;
 import openag.shopify.client.saleschannel.ProductListingsRequest;
@@ -40,6 +41,26 @@ class ShopifyClientImpl implements ShopifyClient {
   @Override
   public List<Product> findProducts(ProductListRequest request) {
     return productClient.findProducts(request);
+  }
+
+  @Override
+  public List<Collect> findCollects(CollectListRequest request) {
+    return productClient.findCollects(request);
+  }
+
+  @Override
+  public Optional<Collect> getCollect(long id) {
+    return productClient.getCollect(id);
+  }
+
+  @Override
+  public void deleteCollect(long id) {
+    productClient.deleteCollect(id);
+  }
+
+  @Override
+  public Collect createCollect(Collect collect) {
+    return productClient.createCollect(collect);
   }
 
   @Override
