@@ -1,5 +1,6 @@
 package openag.shopify.spring;
 
+import openag.shopify.client.AccessScope;
 import openag.shopify.web.HttpRequestSignatureValidator;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +20,7 @@ import java.util.Base64;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 //todo: implement Step 5: Request new access tokens https://help.shopify.com/en/api/getting-started/authentication/oauth/api-credential-rotation
 
@@ -70,11 +72,13 @@ public class ShopifyApplicationAuthorizationController {
   public ShopifyApplicationAuthorizationController(String apiKey,
                                                    String apiSecret,
                                                    String callbackBaseUrl,
-                                                   String... scopes) {
+                                                   AccessScope... scopes) {
     this.apiKey = apiKey;
     this.apiSecret = apiSecret;
     this.callbackBaseUrl = callbackBaseUrl;
-    this.scopes = String.join(",", scopes);
+    this.scopes = Arrays.stream(scopes)
+        .map(Enum::name)
+        .collect(Collectors.joining(","));
   }
 
   /**

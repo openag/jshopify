@@ -3,13 +3,11 @@ package openag.shopify.client;
 import com.google.gson.*;
 
 import java.io.IOException;
-import java.net.Authenticator;
-import java.net.PasswordAuthentication;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.*;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -189,7 +187,7 @@ public class Http {
         if (params != null) {
           sb.append("?").append(
               params.entrySet().stream()
-                  .map(entry -> entry.getKey() + "=" + entry.getValue())
+                  .map(entry -> entry.getKey() + "=" + URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8))
                   .collect(Collectors.joining("&")));
         }
       }

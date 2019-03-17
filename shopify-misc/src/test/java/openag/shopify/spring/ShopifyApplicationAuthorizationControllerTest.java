@@ -1,5 +1,6 @@
 package openag.shopify.spring;
 
+import openag.shopify.client.AccessScope;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -16,7 +17,7 @@ public class ShopifyApplicationAuthorizationControllerTest {
   @Before
   public void setUp() throws Exception {
     controller = new ShopifyApplicationAuthorizationController("key1", "secret1",
-        "https://example.com", "read_products");
+        "https://example.com", AccessScope.read_products);
   }
 
   @Test
