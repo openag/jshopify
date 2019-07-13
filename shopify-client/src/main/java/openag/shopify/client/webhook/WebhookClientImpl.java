@@ -15,20 +15,20 @@ public class WebhookClientImpl implements WebhookClient {
 
   @Override
   public List<Webhook> getWebhooks(WebhookListRequest request) {
-    return http.get("/admin/webhooks.json")
-        .params(request.params())
+    return http.get("/webhooks.json")
+        .queryParams(request.params())
         .list("webhooks", Webhook.class);
   }
 
   @Override
   public Webhook createWebhook(Webhook webhook) {
-    return http.post("/admin/webhooks.json")
+    return http.post("/webhooks.json")
         .body("webhook", webhook)
         .getOne("webhook", Webhook.class);
   }
 
   @Override
   public void deleteWebhook(long id) {
-    http.delete("/admin/webhooks/" + id + ".json").execute();
+    http.delete("/webhooks/" + id + ".json").execute();
   }
 }

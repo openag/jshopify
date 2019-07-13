@@ -1,5 +1,6 @@
 package openag.shopify.client;
 
+import openag.shopify.client.customer.CustomerClient;
 import openag.shopify.client.inventory.InventoryClient;
 import openag.shopify.client.inventory.InventoryLevelsRequest;
 import openag.shopify.client.product.CollectListRequest;
@@ -20,17 +21,20 @@ class ShopifyClientImpl implements ShopifyClient {
   private final InventoryClient inventoryClient;
   private final WebhookClient webhookClient;
   private final SalesChannelClient salesChannelClient;
+  private final CustomerClient customerClient;
 
   private final DownloadUtils downloadUtils = new DownloadUtils();
 
   ShopifyClientImpl(ProductClient productClient,
                     InventoryClient inventoryClient,
                     WebhookClient webhookClient,
-                    SalesChannelClient salesChannelClient) {
+                    SalesChannelClient salesChannelClient,
+                    CustomerClient customerClient) {
     this.productClient = productClient;
     this.inventoryClient = inventoryClient;
     this.webhookClient = webhookClient;
     this.salesChannelClient = salesChannelClient;
+    this.customerClient = customerClient;
   }
 
   @Override
@@ -96,6 +100,11 @@ class ShopifyClientImpl implements ShopifyClient {
   @Override
   public List<ProductListing> getProductListings(ProductListingsRequest request) {
     return salesChannelClient.getProductListings(request);
+  }
+
+  @Override
+  public Optional<Customer> getCustomer(long id) {
+    return customerClient.getCustomer(id);
   }
 
   @Override

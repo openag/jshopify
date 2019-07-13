@@ -1,6 +1,12 @@
 package openag.shopify.client.saleschannel;
 
-import openag.shopify.client.PaginatedRequest;
+import java.util.Collections;
+import java.util.Map;
 
-public class ProductListingsRequest extends PaginatedRequest<ProductListingsRequest> {
+public class ProductListingsRequest {
+
+  public Map<String, String > params() {
+    return Collections.emptyMap();
+  }
+
 }

@@ -3,60 +3,43 @@ package openag.shopify.client;
 import com.google.gson.*;
 
 import java.io.IOException;
-import java.net.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 
+import static java.net.http.HttpResponse.BodyHandlers.ofString;
+
+/**
+ * Simple wrapper around java native HTTP client
+ */
 public class Http {
   private final HttpClient http;
-  private final String baseUrl;
+  private final ShopifyClientFactory.UrlBuilder urlBuilder;
+  private final Consumer<HttpRequest.Builder> authenticator;
 
   private static final Gson gson = new GsonBuilder()
       .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
       .setDateFormat("yyyy-MM-dd'T'HH:mm:ssX")
       .create();
 
-  private final AtomicInteger availableSlots = new AtomicInteger(40);
-  private volatile long slotLastUpdateTimestamp;
+  private final AtomicInteger rateNow = new AtomicInteger();
+  private final AtomicInteger rateMax = new AtomicInteger(40);
 
-  private String accessToken;
-
-  /**
-   * Creates new {@link Http} instance with application key/secret authentication scheme (suitable for private
-   * applications for example)
-   *
-   * @param domain   Shopify shop full domain (xxxx.myshopify.com)
-   * @param apiKey   shop private app API key
-   * @param password shop private app password
-   */
-  Http(String domain, String apiKey, String password) {
-    this.http =
-        HttpClient.newBuilder()
-            .authenticator(new Authenticator() {
-              @Override
-              protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(apiKey, password.toCharArray());
-              }
-            })
-            .build();
-    this.baseUrl = "https://" + domain;
-  }
-
-  /**
-   * todo:
-   *
-   * @param domain
-   * @param accessToken
-   */
-  Http(String domain, String accessToken) {
-    this.http = HttpClient.newBuilder().build();
-    this.accessToken = accessToken;
-    this.baseUrl = "https://" + domain;
+  Http(HttpClient http,
+       ShopifyClientFactory.UrlBuilder urlBuilder,
+       Consumer<HttpRequest.Builder> authenticator) {
+    if (authenticator == null) {
+      throw new IllegalArgumentException("Authentication mechanism is not specified!");
+    }
+    this.http = http;
+    this.urlBuilder = urlBuilder;
+    this.authenticator = authenticator;
   }
 
   /**
@@ -74,14 +57,6 @@ public class Http {
     return new Exchange(path, Method.DELETE);
   }
 
-  private URI absolute(String path) {
-    try {
-      return new URI(baseUrl + path);
-    } catch (URISyntaxException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
   /**
    * Encapsulation of request-response operation pair
    */
@@ -90,7 +65,9 @@ public class Http {
     private final String path;
     private final Method method;
 
-    private Map<String, String> params;
+    private List<String> pathVariables;
+    private Map<String, String> queryParams;
+
     private JsonObject body;
 
     private Exchange(String path, Method method) {
@@ -98,15 +75,17 @@ public class Http {
       this.method = method;
     }
 
-    public Exchange params(Map<String, String> params) {
-      ensureParams();
-      this.params.putAll(params);
+    public Exchange pathVariable(long value) {
+      if (pathVariables == null) {
+        pathVariables = new ArrayList<>(2);
+      }
+      pathVariables.add(String.valueOf(value));
       return this;
     }
 
-    public Exchange param(String name, String value) {
+    public Exchange queryParams(Map<String, String> params) {
       ensureParams();
-      this.params.put(name, value);
+      this.queryParams.putAll(params);
       return this;
     }
 
@@ -178,77 +157,83 @@ public class Http {
     }
 
     /**
-     * todo:
+     * Creates new {@link HttpRequest} instance using all provided values
      */
-    private HttpRequest request() {
-      final StringBuilder sb = new StringBuilder(path);
+    private HttpRequest buildRequest() throws URISyntaxException {
+      final String url = urlBuilder.url(path,
+          pathVariables != null ? pathVariables : Collections.emptyList(),
+          queryParams != null ? queryParams : Collections.emptyMap());
 
-      if (method == Method.GET) {
-        if (params != null) {
-          sb.append("?").append(
-              params.entrySet().stream()
-                  .map(entry -> entry.getKey() + "=" + URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8))
-                  .collect(Collectors.joining("&")));
-        }
-      }
-
-      HttpRequest.BodyPublisher bodyPublisher = HttpRequest.BodyPublishers.noBody();
-      if (method == Method.POST) {
-        bodyPublisher = HttpRequest.BodyPublishers.ofString(gson.toJson(body));
-      }
+      final HttpRequest.BodyPublisher bodyPublisher = (body == null) ? HttpRequest.BodyPublishers.noBody()
+          : HttpRequest.BodyPublishers.ofString(gson.toJson(body));
 
       final HttpRequest.Builder builder = HttpRequest.newBuilder()
-          .uri(absolute(sb.toString()))
+          .uri(new URI(url))
           .method(this.method.name(), bodyPublisher);
 
       if (method == Method.POST) {
         builder.header("Content-Type", "application/json");
       }
 
-      if (accessToken != null) {
-        builder.header("X-Shopify-Access-Token", accessToken);
-      }
+      authenticator.accept(builder);
 
       return builder.build();
     }
 
     /**
-     * todo:
+     * Main HTTP Request execution method, all requests pass through it
      */
     private HttpResponse<String> executeRequest() {
-      final HttpRequest request = request();
-
       try {
-        acquireSlot();
-        final HttpResponse<String> response = http.send(request, HttpResponse.BodyHandlers.ofString());
-        response.headers().firstValue("x-shopify-shop-api-call-limit").ifPresent(this::updateSlot);
-        //    todo: check response codes
+        final HttpRequest request = buildRequest();
+        return doExecuteRequest(request);
+      } catch (URISyntaxException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    private HttpResponse<String> doExecuteRequest(HttpRequest request) {
+      try {
+        if (rateMax.get() - rateNow.get() < 2) {
+          Thread.sleep(1_000);
+        }
+
+        final HttpResponse<String> response = http.send(request, ofString());
+
+        final HttpHeaders headers = response.headers();
+
+        /* Update call rate parameters if provided */
+        headers.firstValue("x-shopify-shop-api-call-limit").ifPresent(header -> {
+          final String[] split = header.split("/");  // 1/40
+          rateNow.set(Integer.parseInt(split[0]));
+          rateMax.set(Integer.parseInt(split[1]));
+        });
+
+        final int statusCode = response.statusCode();
+
+        /* Too Many Requests */
+        if (statusCode == 429) {
+          headers.firstValue("Retry-After").ifPresent(seconds -> {
+            try {
+              Thread.sleep(((long) Double.parseDouble(seconds)) * 1_000);
+              doExecuteRequest(request);
+            } catch (InterruptedException e) {
+              e.printStackTrace();
+            }
+          });
+        }
+
+        //    todo: check other response codes
+
         return response;
       } catch (InterruptedException | IOException e) {
         throw new ShopifyClientException(e);
       }
     }
 
-    //todo: not safe implementation for now, improve!
-    private synchronized void acquireSlot() throws InterruptedException {
-      if (availableSlots.get() <= 0) {
-        Thread.sleep(1_000); //expect that at least one slot will become available during this second
-      } else {
-        if (availableSlots.get() > 0) {
-          availableSlots.decrementAndGet();
-        }
-      }
-    }
-
-    private void updateSlot(String s) {
-      final String[] split = s.split("/");  // 1/40
-      availableSlots.set(Integer.parseInt(split[1]) - Integer.parseInt(split[0]));
-    }
-
-
     private void ensureParams() {
-      if (this.params == null) {
-        this.params = new HashMap<>();
+      if (this.queryParams == null) {
+        this.queryParams = new HashMap<>();
       }
     }
   }

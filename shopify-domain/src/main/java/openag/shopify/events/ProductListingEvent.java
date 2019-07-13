@@ -2,15 +2,14 @@ package openag.shopify.events;
 
 import openag.shopify.domain.ProductListing;
 
-public abstract class ProductListingEvent implements ShopifyEvent {
-  private final ProductListing product;
+public abstract class ProductListingEvent extends AbstractShopifyEvent<ProductListing> {
 
-  public ProductListingEvent(ProductListing product) {
-    this.product = product;
+  ProductListingEvent(ProductListing product) {
+    super(product);
   }
 
   public ProductListing getProductListing() {
-    return product;
+    return getTarget();
   }
 
   public static class Created extends ProductListingEvent {

@@ -17,20 +17,20 @@ public class InventoryClientImpl implements InventoryClient {
 
   @Override
   public List<Location> getLocations() {
-    return http.get("/admin/locations.json")
+    return http.get("/locations.json")
         .list("locations", Location.class);
   }
 
   @Override
   public Optional<Location> getLocation(long id) {
-    return http.get("/admin/locations/" + id + ".json")
+    return http.get("/locations/#{location_id}.json").pathVariable(id)
         .getOptional("location", Location.class);
   }
 
   @Override
   public List<InventoryLevel> getInventoryLevels(InventoryLevelsRequest request) {
-    return http.get("/admin/inventory_levels.json")
-        .params(request.params())
+    return http.get("/inventory_levels.json")
+        .queryParams(request.params())
         .list("inventory_levels", InventoryLevel.class);
   }
 }

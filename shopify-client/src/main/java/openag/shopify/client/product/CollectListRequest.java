@@ -2,9 +2,10 @@ package openag.shopify.client.product;
 
 import openag.shopify.client.PaginatedRequest;
 
+import java.util.HashMap;
 import java.util.Map;
 
-public class CollectListRequest extends PaginatedRequest<CollectListRequest> {
+public class CollectListRequest {
 
   /**
    * Retrieve only collects for a certain product
@@ -16,6 +17,10 @@ public class CollectListRequest extends PaginatedRequest<CollectListRequest> {
    */
   private Long collectionId;
 
+  public static CollectListRequest forCollection(long collectionId) {
+    return new CollectListRequest().collectionId(collectionId);
+  }
+  
   public CollectListRequest productId(long productId) {
     this.productId = productId;
     return this;
@@ -26,9 +31,8 @@ public class CollectListRequest extends PaginatedRequest<CollectListRequest> {
     return this;
   }
 
-  @Override
   public Map<String, String> params() {
-    final Map<String, String> params = super.params();
+    final Map<String, String> params = new HashMap<>();
     if (productId != null) {
       params.put("product_id", String.valueOf(productId));
     }

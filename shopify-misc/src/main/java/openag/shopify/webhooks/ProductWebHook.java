@@ -1,8 +1,8 @@
 package openag.shopify.webhooks;
 
-import openag.shopify.spring.ShopifyPayload;
 import openag.shopify.domain.Product;
 import openag.shopify.events.ProductEvent;
+import openag.shopify.spring.ShopifyPayload;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

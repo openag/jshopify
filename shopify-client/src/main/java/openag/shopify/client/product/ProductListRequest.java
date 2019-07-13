@@ -2,9 +2,10 @@ package openag.shopify.client.product;
 
 import openag.shopify.client.PaginatedRequest;
 
+import java.util.HashMap;
 import java.util.Map;
 
-public class ProductListRequest extends PaginatedRequest<ProductListRequest> {
+public class ProductListRequest  {
 
   private String productType;
 
@@ -20,9 +21,8 @@ public class ProductListRequest extends PaginatedRequest<ProductListRequest> {
     return this;
   }
 
-  @Override
   public Map<String, String> params() {
-    final Map<String, String> params = super.params();
+    final Map<String, String> params = new HashMap<>();
     if (productType != null) {
       params.put("product_type", productType);
     }

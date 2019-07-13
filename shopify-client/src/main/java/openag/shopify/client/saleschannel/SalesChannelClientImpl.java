@@ -15,8 +15,8 @@ public class SalesChannelClientImpl implements SalesChannelClient {
 
   @Override
   public List<ProductListing> getProductListings(ProductListingsRequest request) {
-    return http.get("/admin/product_listings.json")
-        .params(request.params())
+    return http.get("/product_listings.json")
+        .queryParams(request.params())
         .list("product_listings", ProductListing.class);
   }
 }

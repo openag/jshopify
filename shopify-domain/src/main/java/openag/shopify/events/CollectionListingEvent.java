@@ -2,15 +2,14 @@ package openag.shopify.events;
 
 import openag.shopify.domain.CollectionListing;
 
-public abstract class CollectionListingEvent implements ShopifyEvent {
-  private final CollectionListing collection;
+public abstract class CollectionListingEvent extends AbstractShopifyEvent<CollectionListing> {
 
-  public CollectionListingEvent(CollectionListing collection) {
-    this.collection = collection;
+  CollectionListingEvent(CollectionListing collection) {
+    super(collection);
   }
 
   public CollectionListing getCollectionListing() {
-    return collection;
+    return getTarget();
   }
 
   public static class Created extends CollectionListingEvent {

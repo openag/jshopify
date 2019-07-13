@@ -9,6 +9,11 @@ public class CollectionListing extends AbstractCollection {
 
   //todo: default_product_image
 
+
+  public long getCollectionId() {
+    return collectionId;
+  }
+
   @Override
   public String toString() {
     return "CollectionListing{" +
