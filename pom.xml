@@ -109,13 +109,10 @@
   </dependencyManagement>
 
   <distributionManagement>
-    <snapshotRepository>
-      <id>maven-snapshots</id>
-      <url>http://localhost/nexus/repository/maven-snapshots/</url>
-    </snapshotRepository>
     <repository>
-      <id>maven-releases</id>
-      <url>http://localhost/nexus/repository/maven-releases/</url>
+      <id>github</id>
+      <name>GitHub Apache Maven Packages</name>
+      <url>https://maven.pkg.github.com/openag</url>
     </repository>
   </distributionManagement>
 
