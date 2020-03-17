@@ -21,6 +21,12 @@
     <spring.version>5.2.3.RELEASE</spring.version>
   </properties>
 
+  <scm>
+    <connection>scm:git:https://github.com/openag/jshopify.git</connection>
+    <url>https://github.com/openag/jshopify</url>
+    <developerConnection>scm:git:https://github.com/openag/jshopify.git</developerConnection>
+  </scm>
+
   <modules>
     <module>shopify-domain</module>
     <module>shopify-client</module>
