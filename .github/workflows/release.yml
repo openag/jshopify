@@ -2,8 +2,9 @@ name: Release
 
 on:
   push:
-    branches: [ master ]
-    
+    tags:
+      - release-*
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,10 +18,6 @@ jobs:
           java-version: 11
 
       - name: Build with Maven
-        run: mvn -B package
-
-#      - name: Publish to GitHub Packages Apache Maven
-#        run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
-#        env:
-#          GITHUB_TOKEN: ${{ github.token }}
-#repo-token: ${{ secrets.GITHUB_TOKEN }}
+        run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
