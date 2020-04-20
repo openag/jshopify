@@ -1,5 +1,6 @@
 package openag.shopify.spring;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import openag.shopify.ShopifyUtils;
 import openag.shopify.SigningKeyResolver;
@@ -19,6 +20,8 @@ import java.util.Optional;
  * must be annotated with {@link ShopifyPayload}
  */
 public class ShopifyPayloadResolver implements HandlerMethodArgumentResolver {
+
+  private static final Gson gson = ShopifyUtils.gson;
 
   private final SigningKeyResolver signingKeyResolver;
 
@@ -47,11 +50,19 @@ public class ShopifyPayloadResolver implements HandlerMethodArgumentResolver {
         signingKeyResolver.getKey(webRequest.getHeader("x-shopify-shop-domain")));
 
     if (optional.isPresent()) {
-      if (annotation != null && annotation.wrapped()) {
-        final JsonObject json = ShopifyUtils.gson.fromJson(optional.get(), JsonObject.class);
-        return ShopifyUtils.gson.fromJson(json.get(json.keySet().iterator().next()), parameter.getParameterType());
+      final Class<?> parameterType = parameter.getParameterType();
+      final JsonObject json = gson.fromJson(optional.get(), JsonObject.class);
+
+      final boolean returnJson = JsonObject.class.isAssignableFrom(parameterType);
+      if (returnJson) {
+        return json;
       }
-      return ShopifyUtils.gson.fromJson(optional.get(), parameter.getParameterType());
+
+      if (annotation != null && annotation.wrapped()) {
+        return gson.fromJson(json.get(json.keySet().iterator().next()), parameterType);
+      }
+
+      return gson.fromJson(optional.get(), parameterType);
     }
     return null;
   }

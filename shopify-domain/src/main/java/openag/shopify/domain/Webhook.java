@@ -182,7 +182,8 @@ public class Webhook {
     inventory_items_delete("inventory_items/delete"),
     locations_create("locations/create"),
     locations_update("locations/update"),
-    locations_delete("locations/delete");
+    locations_delete("locations/delete"),
+    unknown("");
 
     private final String topic;
 
@@ -192,6 +193,16 @@ public class Webhook {
 
     public String getTopic() {
       return topic;
-    }}
+    }
+
+    public static Topic parse(String s) {
+      for (Topic topic : values()) {
+        if (topic.topic.equalsIgnoreCase(s)) {
+          return topic;
+        }
+      }
+      return unknown;
+    }
+  }
 
 }

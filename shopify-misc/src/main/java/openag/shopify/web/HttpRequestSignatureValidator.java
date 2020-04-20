@@ -1,11 +1,12 @@
 package openag.shopify.web;
 
+import openag.shopify.Constants;
 import openag.shopify.ShopifyUtils;
 import org.springframework.util.StreamUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.Set;
@@ -52,8 +53,8 @@ public class HttpRequestSignatureValidator {
    * @return response body if validation was successful; empty optional otherwise
    */
   public static Optional<String> validateBodySignature(HttpServletRequest request, String secret) throws IOException {
-    final String hmac = ShopifyUtils.toHexString(Base64.getDecoder().decode(request.getHeader("x-shopify-hmac-sha256")));
-    final String body = StreamUtils.copyToString(request.getInputStream(), Charset.forName("UTF-8"));
+    final String hmac = ShopifyUtils.toHexString(Base64.getDecoder().decode(request.getHeader(Constants.HTTP_HEADER_SHOPIFY_SHOPIFY_HMAC_SHA_256)));
+    final String body = StreamUtils.copyToString(request.getInputStream(), StandardCharsets.UTF_8);
     if (hmac(body, secret).equals(hmac)) {
       return Optional.of(body);
     }

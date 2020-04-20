@@ -20,3 +20,15 @@ Or using the token authentication:
       .build();
 ```
 
+# Features
+
+## JSON WebHook
+Possibility to receive Shopify WebHook calls in raw JSON format. 
+See samples/sample-json-webhook
+
+## JSON Client
+REST API Client that works with raw JSON payload
+```
+openag.shopify.client.ShopifyJsonClient
+```
+Use ShopifyClientFactory#buildJsonClient() to create new client instance

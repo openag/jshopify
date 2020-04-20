@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @SuppressWarnings({"WeakerAccess", "unused"}) // public API
 public class ShopifyClientFactory {
 
-  private static final String DEFAULT_API_VERSION = "2019-07";
+  private static final String DEFAULT_API_VERSION = "2020-04";
 
   /**
    * Full domain name of the Shopify shop in format xxxxxxx.myshopify.com
@@ -66,18 +66,28 @@ public class ShopifyClientFactory {
    * Builds new instance of {@link ShopifyClient}
    */
   public ShopifyClient build() {
-    final HttpClient httpClient = HttpClient.newBuilder().build();
-
-    final UrlBuilder urlBuilder = new UrlBuilder(domain, apiVersion);
-
-    final Http http = new Http(httpClient, urlBuilder, authenticator);
-
+    final Http http = buildHttp();
     return new ShopifyClientImpl(
         new ProductClientImpl(http),
         new InventoryClientImpl(http),
         new WebhookClientImpl(http),
         new SalesChannelClientImpl(http),
         new CustomerClientImpl(http));
+  }
+
+  /**
+   * Creates new instance of {@link ShopifyJsonClient}
+   */
+  public ShopifyJsonClient buildJsonClient() {
+    return new ShopifyJsonClientImpl(buildHttp());
+  }
+
+  private Http buildHttp() {
+    final HttpClient httpClient = HttpClient.newBuilder().build();
+
+    final UrlBuilder urlBuilder = new UrlBuilder(domain, apiVersion);
+
+    return new Http(httpClient, urlBuilder, authenticator);
   }
 
 

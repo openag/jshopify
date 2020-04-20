@@ -1,15 +1,15 @@
 package openag.shopify.client.product;
 
-import openag.shopify.client.PaginatedRequest;
-
 import java.util.HashMap;
 import java.util.Map;
 
-public class ProductListRequest  {
+public class ProductListRequest {
 
   private String productType;
 
   private String vendor;
+
+  private String handle;
 
   public ProductListRequest productType(String productType) {
     this.productType = productType;
@@ -21,6 +21,11 @@ public class ProductListRequest  {
     return this;
   }
 
+  public ProductListRequest handle(String handle) {
+    this.handle = handle;
+    return this;
+  }
+
   public Map<String, String> params() {
     final Map<String, String> params = new HashMap<>();
     if (productType != null) {
@@ -28,6 +33,9 @@ public class ProductListRequest  {
     }
     if (vendor != null) {
       params.put("vendor", vendor);
+    }
+    if (handle != null) {
+      params.put("handle", handle);
     }
     return params;
   }
