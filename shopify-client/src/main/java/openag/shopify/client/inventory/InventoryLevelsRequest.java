@@ -1,12 +1,12 @@
 package openag.shopify.client.inventory;
 
-import openag.shopify.client.PaginatedRequest;
+import openag.shopify.client.http.PageRequest;
 
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class InventoryLevelsRequest extends PaginatedRequest<InventoryLevelsRequest> {
+public class InventoryLevelsRequest extends PageRequest {
 
   /**
    * list of inventory item IDs.

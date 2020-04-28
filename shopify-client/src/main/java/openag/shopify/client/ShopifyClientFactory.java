@@ -1,22 +1,16 @@
 package openag.shopify.client;
 
 import openag.shopify.client.customer.CustomerClientImpl;
+import openag.shopify.client.http.Http;
+import openag.shopify.client.http.HttpFactory;
 import openag.shopify.client.inventory.InventoryClientImpl;
 import openag.shopify.client.product.ProductClientImpl;
 import openag.shopify.client.saleschannel.SalesChannelClientImpl;
 import openag.shopify.client.webhook.WebhookClientImpl;
 
-import java.net.URLEncoder;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @SuppressWarnings({"WeakerAccess", "unused"}) // public API
 public class ShopifyClientFactory {
@@ -30,7 +24,7 @@ public class ShopifyClientFactory {
 
   private String apiVersion = DEFAULT_API_VERSION;
 
-  private Consumer<HttpRequest.Builder> authenticator;
+  private Consumer<HttpRequest.Builder> authenticator; //todo: refactor authenticator
 
   public ShopifyClientFactory(String domain) {
     this.domain = domain.endsWith(".myshopify.com") ? domain : domain + ".myshopify.com";
@@ -83,13 +77,11 @@ public class ShopifyClientFactory {
   }
 
   private Http buildHttp() {
-    final HttpClient httpClient = HttpClient.newBuilder().build();
-
-    final UrlBuilder urlBuilder = new UrlBuilder(domain, apiVersion);
-
-    return new Http(httpClient, urlBuilder, authenticator);
+    return HttpFactory.newHttp(domain, apiVersion, authenticator);
+//    final HttpClient httpClient = HttpClient.newBuilder().build();
+//    final UrlBuilder urlBuilder = new UrlBuilder(domain, apiVersion);
+//    return new NativeHttp(httpClient, urlBuilder, authenticator);
   }
-
 
   private static class AccessTokenAuthenticator implements Consumer<HttpRequest.Builder> {
     private final String accessToken;
@@ -116,38 +108,4 @@ public class ShopifyClientFactory {
       builder.header("Authorization", token);
     }
   }
-
-  static class UrlBuilder {
-    private static final Pattern VARIABLE_MATCH = Pattern.compile("#\\{\\w+}");
-
-    private final String baseUrl;
-
-    UrlBuilder(String domain, String apiVersion) {
-      this.baseUrl = "https://" + domain + "/admin/api/" + apiVersion;
-
-    }
-
-    String url(String path, List<String> pathParams, Map<String, String> queryParams) {
-      if (pathParams.isEmpty() && queryParams.isEmpty()) {
-        return baseUrl + path;
-      }
-
-      final StringBuilder sb = new StringBuilder(baseUrl);
-      if (!pathParams.isEmpty()) {
-        final Iterator<String> it = pathParams.iterator();
-        sb.append(VARIABLE_MATCH.matcher(path).replaceAll(matchResult -> it.next()));
-      } else {
-        sb.append(path);
-      }
-
-      if (!queryParams.isEmpty()) {
-        sb.append("?").append(
-            queryParams.entrySet().stream()
-                .map(entry -> entry.getKey() + "=" + URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8))
-                .collect(Collectors.joining("&")));
-      }
-      return sb.toString();
-    }
-  }
-
 }

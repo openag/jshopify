@@ -1,4 +1,4 @@
-package openag.shopify.client;
+package openag.shopify.client.http;
 
 import org.junit.Test;
 
@@ -7,10 +7,10 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class ShopifyClientFactoryTest {
+public class UrlBuilderTest {
 
-  private final ShopifyClientFactory.UrlBuilder urlBuilder =
-      new ShopifyClientFactory.UrlBuilder("test.myshopify.com", "2019-07");
+  private final UrlBuilder urlBuilder =
+      new UrlBuilder("test.myshopify.com", "2019-07");
 
   @Test
   public void test_build_url_with_single_variable() {
@@ -30,6 +30,5 @@ public class ShopifyClientFactoryTest {
     final String url = urlBuilder.url("/customers.json", Collections.emptyList(), Map.of("page", "2"));
     assertEquals("https://test.myshopify.com/admin/api/2019-07/customers.json?page=2", url);
   }
-
 
 }

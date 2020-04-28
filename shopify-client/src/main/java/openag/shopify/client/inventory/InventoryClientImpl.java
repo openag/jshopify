@@ -1,6 +1,6 @@
 package openag.shopify.client.inventory;
 
-import openag.shopify.client.Http;
+import openag.shopify.client.http.Http;
 import openag.shopify.domain.InventoryLevel;
 import openag.shopify.domain.Location;
 
@@ -17,20 +17,16 @@ public class InventoryClientImpl implements InventoryClient {
 
   @Override
   public List<Location> getLocations() {
-    return http.get("/locations.json")
-        .list("locations", Location.class);
+    return http.list(e -> e.path("/locations.json"), Location.class);
   }
 
   @Override
   public Optional<Location> getLocation(long id) {
-    return http.get("/locations/#{location_id}.json").pathVariable(id)
-        .getOptional("location", Location.class);
+    return http.getOptional(e -> e.path("/locations/#{location_id}.json").pathVariable(id), Location.class);
   }
 
   @Override
   public List<InventoryLevel> getInventoryLevels(InventoryLevelsRequest request) {
-    return http.get("/inventory_levels.json")
-        .queryParams(request.params())
-        .list("inventory_levels", InventoryLevel.class);
+    return http.list(e -> e.path("/inventory_levels.json").queryParams(request.params()), InventoryLevel.class);
   }
 }

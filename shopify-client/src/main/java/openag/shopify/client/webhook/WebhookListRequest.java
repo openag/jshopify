@@ -1,11 +1,11 @@
 package openag.shopify.client.webhook;
 
-import openag.shopify.client.PaginatedRequest;
+import openag.shopify.client.http.PageRequest;
 import openag.shopify.domain.Webhook;
 
 import java.util.Map;
 
-public class WebhookListRequest extends PaginatedRequest<WebhookListRequest> {
+public class WebhookListRequest extends PageRequest {
 
   private String topic;
 

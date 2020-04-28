@@ -1,7 +1,5 @@
 package openag.shopify.client.product;
 
-import openag.shopify.client.PaginatedRequest;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,7 +18,7 @@ public class CollectListRequest {
   public static CollectListRequest forCollection(long collectionId) {
     return new CollectListRequest().collectionId(collectionId);
   }
-  
+
   public CollectListRequest productId(long productId) {
     this.productId = productId;
     return this;
