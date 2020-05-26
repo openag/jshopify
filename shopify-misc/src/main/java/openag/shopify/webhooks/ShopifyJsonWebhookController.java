@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/webhook/json")
-public class ShopifyJsonWebhook {
+public class ShopifyJsonWebhookController {
 
   private final ShopifyJsonWebhookHandler handler;
 
-  public ShopifyJsonWebhook(ShopifyJsonWebhookHandler handler) {
+  public ShopifyJsonWebhookController(ShopifyJsonWebhookHandler handler) {
     this.handler = handler;
   }
 

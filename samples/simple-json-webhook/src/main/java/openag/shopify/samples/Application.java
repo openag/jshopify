@@ -1,34 +1,44 @@
 package openag.shopify.samples;
 
-import openag.shopify.Constants;
-import openag.shopify.domain.Webhook;
-import openag.shopify.webhooks.ShopifyJsonWebhook;
+import openag.shopify.events.ProductEvent;
+import openag.shopify.webhooks.ApplicationEventPublisherWebhookHandler;
+import openag.shopify.webhooks.ShopifyJsonWebhookController;
 import openag.shopify.webhooks.ShopifyJsonWebhookHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.event.EventListener;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @SpringBootApplication
 public class Application implements WebMvcConfigurer {
+  private static final Logger log = LoggerFactory.getLogger(Application.class);
+
+  private final ApplicationEventPublisher publisher;
+
+  public Application(ApplicationEventPublisher publisher) {
+    this.publisher = publisher;
+  }
 
   public static void main(String[] args) {
     SpringApplication.run(Application.class, args);
   }
 
   @Bean
-  public ShopifyJsonWebhook webhook() {
-    return new ShopifyJsonWebhook(shopifyJsonWebhookHandler());
+  public ShopifyJsonWebhookController webhook() {
+    return new ShopifyJsonWebhookController(shopifyJsonWebhookHandler());
   }
 
   @Bean
   public ShopifyJsonWebhookHandler shopifyJsonWebhookHandler() {
-    return (json, headers) -> {
-      final String domain = headers.getFirst(Constants.HTTP_HEADER_SHOPIFY_SHOP_DOMAIN);
-      final Webhook.Topic topic = Webhook.Topic.parse(headers.getFirst(Constants.HTTP_HEADER_SHOPIFY_TOPIC));
+    return new ApplicationEventPublisherWebhookHandler(publisher);
+  }
 
-      System.out.println("Received webhook call from " + domain + " for '" + topic + "':");
-      System.out.println(json);
-    };
+  @EventListener
+  public void handleProductCreate(ProductEvent.Created event) {
+    log.info("Product created in shop '{}': {}", event.getDomain(), event.getProduct());
   }
 }

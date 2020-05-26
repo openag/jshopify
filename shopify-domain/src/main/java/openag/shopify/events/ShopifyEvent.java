@@ -7,4 +7,5 @@ public interface ShopifyEvent<T> {
 
   T getTarget();
 
+  String getDomain();
 }
