@@ -1,5 +1,6 @@
 package openag.shopify.client.inventory;
 
+import openag.shopify.client.http.Page;
 import openag.shopify.domain.InventoryLevel;
 import openag.shopify.domain.Location;
 
@@ -22,5 +23,5 @@ public interface InventoryClient {
    * Retrieves a list of inventory levels. You must include inventory_item_ids, location_ids, or both as filter
    * parameters.
    */
-  List<InventoryLevel> getInventoryLevels(InventoryLevelsRequest request);
+  Page<InventoryLevel> getInventoryLevels(InventoryLevelsRequest request);
 }

@@ -87,5 +87,14 @@ public enum AccessScope {
   unauthenticated_read_customer_tags,
 
   /* Unauthenticated access to read storefront content, such as Article, Blog, and Comment objects. */
-  unauthenticated_read_content
+  unauthenticated_read_content;
+
+  public static AccessScope parse(String s) {
+    for (AccessScope scope : values()) {
+      if (scope.name().equalsIgnoreCase(s)) {
+        return scope;
+      }
+    }
+    return null;
+  }
 }

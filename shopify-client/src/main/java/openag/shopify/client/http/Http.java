@@ -6,8 +6,6 @@ import com.google.gson.GsonBuilder;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
 
 /**
  * HTTP client abstraction
@@ -19,15 +17,53 @@ public interface Http {
       .setDateFormat("yyyy-MM-dd'T'HH:mm:ssX")
       .create();
 
-  <T> T exchange(Consumer<Exchange> ec, Class<T> elementType);
+  /**
+   * Performs the request-response exchange, expecting single object in response
+   */
+  <E> E exchange(Request rq, ResponseType.Obj<E> rt);
 
-  void delete(Consumer<Exchange> ec);
+  /**
+   * Performs the request-response exchange, expecting single object in response
+   */
+  <E> List<E> exchange(Request rq, ResponseType.Arr<E> rt);
 
-  <T> List<T> list(Consumer<Exchange> ec, Class<T> elementType);
+  /**
+   * Performs the request-response exchange ignoring the response
+   */
+  void exchange(Request rq);
 
-  <T> Iterator<T> iterate(Consumer<Exchange> ec, Class<T> elementType);
+  /**
+   * Page request
+   */
+  <E> Page<E> page(Request rq, ResponseType.Arr<E> rt);
 
-  <T> Optional<T> getOptional(Consumer<Exchange> ec, Class<T> elementType);
+  /**
+   * Retrieves all available elements in a single list; pagination may be triggered under the hood if there are more
+   * elements available
+   */
+  <E> List<E> list(Request rq, ResponseType.Arr<E> rt);
 
-  <T> T getOne(Consumer<Exchange> ec, Class<T> elementType);
+  /**
+   * Iterate through all available elements applying lazy-loading for each subsequent page if needed
+   */
+  <T> Iterator<T> iterate(Request rq, ResponseType.Arr<T> rt);
+
+  enum Method {
+    GET, POST, DELETE
+  }
+
+  enum ContentType {
+    JSON("application/json"),
+    FORM_URL_ENCODED("application/x-www-form-urlencoded");
+
+    private final String value;
+
+    ContentType(String value) {
+      this.value = value;
+    }
+
+    public String getValue() {
+      return value;
+    }
+  }
 }

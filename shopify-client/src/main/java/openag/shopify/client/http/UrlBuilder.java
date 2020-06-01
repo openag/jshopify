@@ -13,9 +13,16 @@ public class UrlBuilder {
 
   private final String baseUrl;
 
-  public UrlBuilder(String domain, String apiVersion) {
-    this.baseUrl = "https://" + domain + "/admin/api/" + apiVersion;
+  private UrlBuilder(String baseUrl) {
+    this.baseUrl = baseUrl;
+  }
 
+  public static UrlBuilder forApi(String domain, String apiVersion) {
+    return new UrlBuilder("https://" + domain + "/admin/api/" + apiVersion);
+  }
+
+  public static UrlBuilder absolute(String domain) {
+    return new UrlBuilder("https://" + domain);
   }
 
   String url(String path, List<String> pathParams, Map<String, String> queryParams) {

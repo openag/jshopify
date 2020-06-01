@@ -10,7 +10,7 @@ import static org.junit.Assert.assertEquals;
 public class UrlBuilderTest {
 
   private final UrlBuilder urlBuilder =
-      new UrlBuilder("test.myshopify.com", "2019-07");
+      UrlBuilder.forApi("test.myshopify.com", "2019-07");
 
   @Test
   public void test_build_url_with_single_variable() {

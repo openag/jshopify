@@ -1,12 +1,11 @@
 package openag.shopify.client.inventory;
 
-import openag.shopify.client.http.PageRequest;
-
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class InventoryLevelsRequest extends PageRequest {
+public class InventoryLevelsRequest {
 
   /**
    * list of inventory item IDs.
@@ -32,9 +31,8 @@ public class InventoryLevelsRequest extends PageRequest {
     return this;
   }
 
-  @Override
   public Map<String, String> params() {
-    final Map<String, String> params = super.params();
+    final Map<String, String> params = new HashMap<>();
     if (this.inventoryItemIds != null) {
       params.put("inventory_item_ids", Arrays.stream(this.inventoryItemIds).mapToObj(String::valueOf)
           .collect(Collectors.joining(",")));

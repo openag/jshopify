@@ -1,6 +1,7 @@
 package openag.shopify.client;
 
 import openag.shopify.client.customer.CustomerClient;
+import openag.shopify.client.http.Page;
 import openag.shopify.client.inventory.InventoryClient;
 import openag.shopify.client.inventory.InventoryLevelsRequest;
 import openag.shopify.client.product.CollectListRequest;
@@ -78,7 +79,7 @@ class ShopifyClientImpl implements ShopifyClient {
   }
 
   @Override
-  public List<InventoryLevel> getInventoryLevels(InventoryLevelsRequest request) {
+  public Page<InventoryLevel> getInventoryLevels(InventoryLevelsRequest request) {
     return inventoryClient.getInventoryLevels(request);
   }
 
@@ -98,7 +99,7 @@ class ShopifyClientImpl implements ShopifyClient {
   }
 
   @Override
-  public List<ProductListing> getProductListings(ProductListingsRequest request) {
+  public Page<ProductListing> getProductListings(ProductListingsRequest request) {
     return salesChannelClient.getProductListings(request);
   }
 

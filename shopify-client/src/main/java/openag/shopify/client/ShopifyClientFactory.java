@@ -1,8 +1,11 @@
 package openag.shopify.client;
 
+import openag.shopify.client.admin.AdminClient;
+import openag.shopify.client.admin.AdminClientImpl;
 import openag.shopify.client.customer.CustomerClientImpl;
 import openag.shopify.client.http.Http;
 import openag.shopify.client.http.HttpFactory;
+import openag.shopify.client.http.UrlBuilder;
 import openag.shopify.client.inventory.InventoryClientImpl;
 import openag.shopify.client.product.ProductClientImpl;
 import openag.shopify.client.saleschannel.SalesChannelClientImpl;
@@ -15,7 +18,7 @@ import java.util.function.Consumer;
 @SuppressWarnings({"WeakerAccess", "unused"}) // public API
 public class ShopifyClientFactory {
 
-  private static final String DEFAULT_API_VERSION = "2020-04";
+  public static final String DEFAULT_API_VERSION = "2020-04";
 
   /**
    * Full domain name of the Shopify shop in format xxxxxxx.myshopify.com
@@ -76,11 +79,12 @@ public class ShopifyClientFactory {
     return new ShopifyJsonClientImpl(buildHttp());
   }
 
+  public static AdminClient newAdminClient(String shop, String apiKey, String apiSecret) {
+    return new AdminClientImpl(shop, apiKey, apiSecret);
+  }
+
   private Http buildHttp() {
-    return HttpFactory.newHttp(domain, apiVersion, authenticator);
-//    final HttpClient httpClient = HttpClient.newBuilder().build();
-//    final UrlBuilder urlBuilder = new UrlBuilder(domain, apiVersion);
-//    return new NativeHttp(httpClient, urlBuilder, authenticator);
+    return HttpFactory.newHttp(UrlBuilder.forApi(domain, apiVersion), authenticator);
   }
 
   private static class AccessTokenAuthenticator implements Consumer<HttpRequest.Builder> {

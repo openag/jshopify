@@ -1,9 +1,11 @@
 package openag.shopify.client.saleschannel;
 
 import openag.shopify.client.http.Http;
+import openag.shopify.client.http.Page;
+import openag.shopify.client.http.ResponseType;
 import openag.shopify.domain.ProductListing;
 
-import java.util.List;
+import static openag.shopify.client.http.Request.get;
 
 public class SalesChannelClientImpl implements SalesChannelClient {
 
@@ -14,7 +16,8 @@ public class SalesChannelClientImpl implements SalesChannelClient {
   }
 
   @Override
-  public List<ProductListing> getProductListings(ProductListingsRequest request) {
-    return http.list(e -> e.path("/product_listings.json").queryParams(request.params()), ProductListing.class);
+  public Page<ProductListing> getProductListings(ProductListingsRequest request) {
+    return http.page(get("/product_listings.json").queryParams(request.params()),
+        ResponseType.wrappedList("product_listings",ProductListing.class));
   }
 }

@@ -1,11 +1,11 @@
 package openag.shopify.client.webhook;
 
-import openag.shopify.client.http.PageRequest;
 import openag.shopify.domain.Webhook;
 
+import java.util.HashMap;
 import java.util.Map;
 
-public class WebhookListRequest extends PageRequest {
+public class WebhookListRequest {
 
   private String topic;
 
@@ -16,9 +16,8 @@ public class WebhookListRequest extends PageRequest {
     return this;
   }
 
-  @Override
   public Map<String, String> params() {
-    final Map<String, String> params = super.params();
+    final Map<String, String> params = new HashMap<>();
     if (this.topic != null) {
       params.put("topic", this.topic);
     }

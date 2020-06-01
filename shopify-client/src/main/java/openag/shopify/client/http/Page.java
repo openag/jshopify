@@ -11,23 +11,26 @@ public class Page<T> implements Iterable<T> {
   private static final int DEFAULT_PAGE_LIMIT = 50;
 
   @SuppressWarnings("unchecked")
-  private static final Page<?> EMPTY = new Page(null, null, Collections.emptyList(), Void.class);
+  private static final Page<?> EMPTY = new Page(null, null, Collections.emptyList(),
+      ResponseType.wrappedList("", Void.class));
 
   private final String nextUrl;
   private final String prevUrl;
+
   private final List<T> items;
-  private final Class<T> elementType;
+  private final ResponseType.Arr<T> rt;
+
   private final int limit;
 
-  Page(String nextUrl, String prevUrl, List<T> items, Class<T> elementType) {
-    this(nextUrl, prevUrl, items, elementType, DEFAULT_PAGE_LIMIT);
+  Page(String nextUrl, String prevUrl, List<T> items, ResponseType.Arr<T> rt) {
+    this(nextUrl, prevUrl, items, rt, DEFAULT_PAGE_LIMIT);
   }
 
-  Page(String nextUrl, String prevUrl, List<T> items, Class<T> elementType, int limit) {
+  Page(String nextUrl, String prevUrl, List<T> items, ResponseType.Arr<T> rt, int limit) {
     this.nextUrl = nextUrl;
     this.prevUrl = prevUrl;
     this.items = (items == null ? Collections.emptyList() : items);
-    this.elementType = elementType;
+    this.rt = rt;
     this.limit = limit;
   }
 
@@ -61,11 +64,22 @@ public class Page<T> implements Iterable<T> {
   }
 
   Class<T> getElementType() {
-    return elementType;
+    return rt.getElementType();
+  }
+
+  ResponseType.Arr<T> getRt() {
+    return rt;
   }
 
   @SuppressWarnings("unchecked")
   public static <T> Page<T> empty() {
     return (Page<T>) EMPTY;
+  }
+
+  @Override
+  public String toString() {
+    return "Page{" +
+        "items=" + items +
+        '}';
   }
 }
