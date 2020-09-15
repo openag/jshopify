@@ -15,9 +15,4 @@ public interface ShopifyClient extends
     WebhookClient,
     SalesChannelClient,
     CustomerClient {
-
-  /**
-   * Attempts to fetch the provided file throwing exception if http error code returned
-   */
-  FileRef downloadFile(String url);
 }

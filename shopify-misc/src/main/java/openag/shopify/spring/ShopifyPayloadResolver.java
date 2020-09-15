@@ -42,7 +42,7 @@ public class ShopifyPayloadResolver implements HandlerMethodArgumentResolver {
 
     final ShopifyPayload annotation = parameter.getParameterAnnotation(ShopifyPayload.class);
 
-    //todo: support verifySignature == false
+    //todo: support verifySignature == false  ;;;  todo: key can be null!
 
     /* Extracting request body and validating request signature in one go */
     final Optional<String> optional = HttpRequestSignatureValidator.validateBodySignature(

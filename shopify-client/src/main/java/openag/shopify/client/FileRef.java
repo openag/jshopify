@@ -1,11 +1,12 @@
 package openag.shopify.client;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
  * Reference to downloaded file with opened stream
  */
-public class FileRef {
+public class FileRef implements AutoCloseable {
 
   private final String contentType;
   private final long contentLength;
@@ -27,5 +28,14 @@ public class FileRef {
 
   public InputStream getIn() {
     return in;
+  }
+
+  @Override
+  public void close() {
+    try {
+      this.in.close();
+    } catch (IOException e) {
+      //ignore for now
+    }
   }
 }

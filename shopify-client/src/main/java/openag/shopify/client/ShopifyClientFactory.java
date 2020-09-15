@@ -83,6 +83,10 @@ public class ShopifyClientFactory {
     return new AdminClientImpl(shop, apiKey, apiSecret);
   }
 
+  public static StaticContentClient newStaticContentClient() {
+    return new StaticContentClientImpl();
+  }
+
   private Http buildHttp() {
     return HttpFactory.newHttp(UrlBuilder.forApi(domain, apiVersion), authenticator);
   }

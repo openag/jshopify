@@ -24,8 +24,6 @@ class ShopifyClientImpl implements ShopifyClient {
   private final SalesChannelClient salesChannelClient;
   private final CustomerClient customerClient;
 
-  private final DownloadUtils downloadUtils = new DownloadUtils();
-
   ShopifyClientImpl(ProductClient productClient,
                     InventoryClient inventoryClient,
                     WebhookClient webhookClient,
@@ -106,10 +104,5 @@ class ShopifyClientImpl implements ShopifyClient {
   @Override
   public Optional<Customer> getCustomer(long id) {
     return customerClient.getCustomer(id);
-  }
-
-  @Override
-  public FileRef downloadFile(String url) {
-    return downloadUtils.download(url);
   }
 }
