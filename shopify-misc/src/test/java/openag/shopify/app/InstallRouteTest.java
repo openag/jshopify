@@ -1,8 +1,8 @@
 package openag.shopify.app;
 
 import openag.shopify.client.AccessScope;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import javax.servlet.http.Cookie;
@@ -10,8 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class InstallRouteTest {
 
@@ -19,8 +19,8 @@ public class InstallRouteTest {
 
   private final MockHttpServletResponse response = new MockHttpServletResponse();
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  public void setUp() {
     this.route = new InstallRoute("12345",
         shop -> List.of(AccessScope.read_products),
         "https://example.com/shopify/callback");

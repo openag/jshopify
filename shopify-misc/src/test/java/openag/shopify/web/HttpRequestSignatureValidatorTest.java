@@ -1,13 +1,13 @@
 package openag.shopify.web;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
 import java.util.Optional;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HttpRequestSignatureValidatorTest {
 

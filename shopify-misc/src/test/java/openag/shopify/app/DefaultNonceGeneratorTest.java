@@ -1,11 +1,11 @@
 package openag.shopify.app;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DefaultNonceGeneratorTest {
-  
+
   @Test
   public void test_default_nonce() {
     final DefaultNonceGenerator generator = new DefaultNonceGenerator();
