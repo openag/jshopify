@@ -1,5 +1,6 @@
 package openag.shopify.app;
 
+import openag.shopify.HmacHash;
 import openag.shopify.web.HttpRequestSignatureValidator;
 
 import javax.servlet.http.Cookie;
@@ -51,7 +52,7 @@ public class CallbackRoute {
     //todo: res.status(400).send('Required parameters missing');
 
     /* First verify the request signature */
-    if (!HttpRequestSignatureValidator.validateQueryParametersSignature(request, apiSecret, hmac)) {
+    if (!HttpRequestSignatureValidator.validateQueryParametersSignature(request, apiSecret, HmacHash.fromHex(hmac))) {
       response.sendError(400, "HMAC validation failed");
       return false;
     }

@@ -1,13 +1,12 @@
 package openag.shopify.web;
 
 import openag.shopify.Constants;
-import openag.shopify.ShopifyUtils;
+import openag.shopify.HmacHash;
 import org.springframework.util.StreamUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -32,7 +31,7 @@ public class HttpRequestSignatureValidator {
    * @param hmac    the valid hash to be compared with
    * @return true if request signature is correct; false otherwise
    */
-  public static boolean validateQueryParametersSignature(HttpServletRequest request, String secret, String hmac) {
+  public static boolean validateQueryParametersSignature(HttpServletRequest request, String secret, HmacHash hmac) {
     final Set<String> keys = new TreeSet<>(request.getParameterMap().keySet());
     keys.remove("signature");
     keys.remove("hmac");
@@ -53,7 +52,7 @@ public class HttpRequestSignatureValidator {
    * @return response body if validation was successful; empty optional otherwise
    */
   public static Optional<String> validateBodySignature(HttpServletRequest request, String secret) throws IOException {
-    final String hmac = ShopifyUtils.toHexString(Base64.getDecoder().decode(request.getHeader(Constants.HTTP_HEADER_SHOPIFY_SHOPIFY_HMAC_SHA_256)));
+    final HmacHash hmac = HmacHash.fromBase64(request.getHeader(Constants.HTTP_HEADER_SHOPIFY_SHOPIFY_HMAC_SHA_256));
     final String body = StreamUtils.copyToString(request.getInputStream(), StandardCharsets.UTF_8);
     if (hmac(body, secret).equals(hmac)) {
       return Optional.of(body);

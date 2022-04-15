@@ -1,5 +1,6 @@
 package openag.shopify.web;
 
+import openag.shopify.HmacHash;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.util.StreamUtils;
@@ -23,7 +24,7 @@ public class HttpRequestSignatureValidatorTest {
     assertTrue(
         HttpRequestSignatureValidator.validateQueryParametersSignature(request,
             "d1cc75c3992a4fc6c40d384b081a6034",
-            "d2b47dcff737be57eb99117626071000a16370b805b5c47f40fbf7157ad7e496"));
+            HmacHash.fromHex("d2b47dcff737be57eb99117626071000a16370b805b5c47f40fbf7157ad7e496")));
   }
 
   @Test
