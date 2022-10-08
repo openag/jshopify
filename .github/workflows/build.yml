@@ -2,6 +2,8 @@ name: Compile and Test
 
 on:
   push:
+    branches:
+      - master
 
 jobs:
   build:
@@ -16,4 +18,4 @@ jobs:
           java-version: 11
 
       - name: Build with Maven
-        run: mvn compile test
+        run: mvn -s $GITHUB_WORKSPACE/settings.xml -DGITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} deploy
