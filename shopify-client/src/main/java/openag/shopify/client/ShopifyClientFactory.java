@@ -36,7 +36,7 @@ public class ShopifyClientFactory {
   /**
    * Applies api key/secret authentication scheme (suitable for private applications for example)
    * <p>
-   * https://help.shopify.com/en/api/getting-started/authentication/private-authentication
+   * <a href="https://help.shopify.com/en/api/getting-started/authentication/private-authentication">...</a>
    */
   public ShopifyClientFactory authenticateWithAPIKeyAndPassword(String apiKey, String password) {
     this.authenticator = new BasicAuthenticator(apiKey, password);
@@ -77,6 +77,10 @@ public class ShopifyClientFactory {
    */
   public ShopifyJsonClient buildJsonClient() {
     return new ShopifyJsonClientImpl(buildHttp());
+  }
+
+  public BulkShopifyJsonClient buildBulkShopifyJsonClient() {
+    return new BulkShopifyJsonClientImpl(buildHttp());
   }
 
   public static AdminClient newAdminClient(String shop, String apiKey, String apiSecret) {
