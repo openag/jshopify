@@ -1,8 +1,8 @@
 package openag.shopify.web;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.util.StreamUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;

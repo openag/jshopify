@@ -1,10 +1,10 @@
 package openag.shopify.web;
 
+import jakarta.servlet.http.HttpServletRequest;
 import openag.shopify.Constants;
 import openag.shopify.HmacHash;
 import org.springframework.util.StreamUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;

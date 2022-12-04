@@ -1,44 +1,61 @@
 package openag.shopify.samples;
 
-import openag.shopify.events.ProductEvent;
-import openag.shopify.webhooks.ApplicationEventPublisherWebhookHandler;
-import openag.shopify.webhooks.ShopifyJsonWebhookController;
-import openag.shopify.webhooks.ShopifyJsonWebhookHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import openag.shopify.spring.rx.Headers;
+import openag.shopify.spring.rx.JsonWebhookHandler;
+import openag.shopify.spring.rx.SigningKeyResolver;
+import openag.shopify.spring.rx.WebhookReactiveHandler;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.event.EventListener;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.RouterFunctions;
+import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Mono;
 
 @SpringBootApplication
-public class Application implements WebMvcConfigurer {
-  private static final Logger log = LoggerFactory.getLogger(Application.class);
-
-  private final ApplicationEventPublisher publisher;
-
-  public Application(ApplicationEventPublisher publisher) {
-    this.publisher = publisher;
-  }
+public class Application {
 
   public static void main(String[] args) {
     SpringApplication.run(Application.class, args);
   }
 
-  @Bean
-  public ShopifyJsonWebhookController webhook() {
-    return new ShopifyJsonWebhookController(shopifyJsonWebhookHandler());
-  }
+  /**
+   * Example of reactive json webhook handler configuration
+   */
+  @Configuration
+  public static class ReactiveConfiguration {
 
-  @Bean
-  public ShopifyJsonWebhookHandler shopifyJsonWebhookHandler() {
-    return new ApplicationEventPublisherWebhookHandler(publisher);
-  }
+    @Bean
+    public SigningKeyResolver signingKeyResolver(Environment environment) {
+      return domain -> Mono.justOrEmpty(environment.getProperty("shopify.webhook-sign-key"));
+    }
 
-  @EventListener
-  public void handleProductCreate(ProductEvent.Created event) {
-    log.info("Product created in shop '{}': {}", event.getDomain(), event.getProduct());
+    @Bean
+    public JsonWebhookHandler jsonWebhookHandler() {
+      return (json, headers) -> {
+        final Headers h = new Headers(headers);
+        System.out.println(h.shopDomain());
+        System.out.println(h.collection());
+        System.out.println(h.action());
+        System.out.println(headers);
+        System.out.println(json);
+        return Mono.empty();
+      };
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> routes(SigningKeyResolver signingKeyResolver,
+                                                 JsonWebhookHandler jsonWebhookHandler) {
+      final ObjectMapper mapper = new ObjectMapper();
+
+      final WebhookReactiveHandler handler = new WebhookReactiveHandler(signingKeyResolver, jsonWebhookHandler, mapper);
+
+      return RouterFunctions.route()
+          .POST("/webhook/json", handler::handle)
+          .build();
+    }
   }
 }

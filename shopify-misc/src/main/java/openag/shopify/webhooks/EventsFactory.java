@@ -6,7 +6,7 @@ import openag.shopify.domain.Webhook;
 import openag.shopify.events.ProductEvent;
 import openag.shopify.events.ShopifyEvent;
 
-import static openag.shopify.ShopifyUtils.gson;
+import static openag.shopify.GsonUtils.gson;
 
 public class EventsFactory {
 

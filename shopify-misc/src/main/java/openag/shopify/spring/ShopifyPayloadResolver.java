@@ -2,6 +2,8 @@ package openag.shopify.spring;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import jakarta.servlet.http.HttpServletRequest;
+import openag.shopify.GsonUtils;
 import openag.shopify.ShopifyUtils;
 import openag.shopify.SigningKeyResolver;
 import openag.shopify.web.HttpRequestSignatureValidator;
@@ -11,7 +13,6 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 /**
@@ -21,7 +22,7 @@ import java.util.Optional;
  */
 public class ShopifyPayloadResolver implements HandlerMethodArgumentResolver {
 
-  private static final Gson gson = ShopifyUtils.gson;
+  private static final Gson gson = GsonUtils.gson;
 
   private final SigningKeyResolver signingKeyResolver;
 
